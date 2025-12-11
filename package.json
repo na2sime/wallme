@@ -1,0 +1,34 @@
+{
+  "name": "wallme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Real-time social wall application with microservices architecture",
+  "scripts": {
+    "postinstall": "pnpm rebuild sharp esbuild",
+    "dev": "pnpm --parallel -r dev",
+    "dev:quiet": "pnpm --parallel -r dev > /dev/null 2>&1 &",
+    "dev:sequential": "pnpm -r dev",
+    "start": "pnpm --parallel -r start",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "rebuild:native": "pnpm rebuild sharp esbuild",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f",
+    "docker:full": "docker-compose up --build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

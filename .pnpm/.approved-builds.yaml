@@ -1,0 +1,6 @@
+# Approved build scripts for WallMe
+# These packages are allowed to run installation scripts
+
+- sharp
+- esbuild
+- unrs-resolver

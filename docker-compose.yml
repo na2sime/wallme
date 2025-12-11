@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wallme-postgres
+    environment:
+      POSTGRES_USER: wallme
+      POSTGRES_PASSWORD: wallme
+      POSTGRES_DB: wallme
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wallme']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+    container_name: wallme-redis
+    ports:
+      - '6379:6379'
+    ulimits:
+      memlock: -1
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: wallme-auth-service
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://wallme:wallme@postgres:5432/wallme
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      CORS_ORIGIN: http://localhost:4000
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  post-service:
+    build:
+      context: .
+      dockerfile: services/post-service/Dockerfile
+    container_name: wallme-post-service
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DATABASE_URL: postgresql://wallme:wallme@postgres:5432/wallme
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      CORS_ORIGIN: http://localhost:4000
+    ports:
+      - '3002:3002'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    container_name: wallme-gateway
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      AUTH_SERVICE_URL: http://auth-service:3001
+      POST_SERVICE_URL: http://post-service:3002
+      CORS_ORIGIN: http://localhost:4000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - auth-service
+      - post-service
+      - redis
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: wallme-web
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:3000/api
+    ports:
+      - '4000:4000'
+    depends_on:
+      - gateway
+
+  adminer:
+    image: adminer:latest
+    container_name: wallme-adminer
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

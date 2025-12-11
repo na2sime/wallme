@@ -1,0 +1,16 @@
+node_modules
+.git
+.gitignore
+*.md
+.env
+.env.local
+.next
+dist
+coverage
+*.log
+.DS_Store
+.turbo
+*.tsbuildinfo
+apps/web/.next
+.idea
+.vscode
