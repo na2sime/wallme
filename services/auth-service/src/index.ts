@@ -5,8 +5,10 @@ import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import swaggerUi from 'swagger-ui-express'
 import { validateEnv, createPostgresPool, createRedisClient } from '@wallme/shared'
 import authRoutes from './routes/auth'
+import { swaggerSpec } from './swagger'
 
 const env = validateEnv(process.env)
 
@@ -39,6 +41,7 @@ async function initializeApp() {
     app.locals.env = env
 
     app.use('/auth', authRoutes)
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
     app.get('/health', (req, res) => {
       res.json({ status: 'ok', service: 'auth-service' })

@@ -5,9 +5,11 @@ import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import swaggerUi from 'swagger-ui-express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { createRedisClient } from '@wallme/shared'
 import streamRoutes from './routes/stream'
+import { swaggerSpec } from './swagger'
 
 const app = express()
 
@@ -34,6 +36,9 @@ async function initializeApp() {
       })
     )
     app.use(cookieParser())
+
+    // Swagger UI - Must be before proxy routes
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
     // Proxy routes - NO body parsing before proxy!
     app.use(
