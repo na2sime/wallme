@@ -11,6 +11,8 @@
     "start": "pnpm --parallel -r start",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "rebuild:native": "pnpm rebuild sharp esbuild",
     "docker:up": "docker-compose up -d",
@@ -20,13 +22,17 @@
     "docker:full": "docker-compose up --build"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.11.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
+    "jest": "^30.2.0",
     "prettier": "^3.2.4",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.3.3"
   },
   "engines": {
